@@ -13,12 +13,15 @@ import {
   View,
   Dimensions,
   ListView,
-  Alert, TouchableHighlight, StatusBar
+  Alert, TouchableHighlight, StatusBar, Image
 } from 'react-native';
 
 const ds = new ListView.DataSource({ // 創建 ListView.DataSource 數據源
   rowHasChanged: (r1, r2) => r1 !== r2
 });
+
+const circleSize = 8;
+const circleMargin = 5;
 
 export default class App extends Component<{}> {
 
@@ -40,16 +43,13 @@ export default class App extends Component<{}> {
       ]),
       advertisements: [ // 輪播廣告陣列
         {
-          title: '廣告 1',
-          backgroundColor: 'gray'
+          image: require('./images/advertisement-image-01.jpg')
         },
         {
-          title: '廣告 2',
-          backgroundColor: 'orange'
+          image: require('./images/advertisement-image-02.jpg')
         },
         {
-          title: '廣告 2',
-          backgroundColor: 'yellow'
+          image: require('./images/advertisement-image-03.jpg')
         }
       ],
       searchText: '',
@@ -57,6 +57,10 @@ export default class App extends Component<{}> {
   }
 
   render() {
+    const advertisementCount = this.state.advertisements.length;
+    const indicatorWidth = circleSize * advertisementCount + circleMargin * advertisementCount * 2;
+    const left = (Dimensions.get('window').width - indicatorWidth) / 2;
+
     return (
       <View style={styles.container}>
         <StatusBar backgroundColor={'blue'} barStyle={'default'} networkActivityIndicatorVisible={true}>
@@ -64,8 +68,10 @@ export default class App extends Component<{}> {
         <View style={styles.searchbar}>
           <TextInput style={styles.input} placeholder="搜索商品" onChangeText={(text) => {
             this.setState({searchText: text});
+            console.log('輸入的內容是 ' + this.state.searchText);
           }}/>
-          <Button style={styles.button} title="搜索" onPress={() => Alert.alert('搜索內容 ' + this.state.searchText, null, null)}/>
+          <Button style={styles.button} title="搜索"
+                  onPress={() => Alert.alert('搜索內容 ' + this.state.searchText, null, null)}/>
         </View>
         <View style={styles.advertisement}>
           <ScrollView ref="scrollView"
@@ -75,14 +81,19 @@ export default class App extends Component<{}> {
             {this.state.advertisements.map((advertisement, index) => {
               return (
                 <TouchableHighlight key={index} onPress={() => Alert.alert('你單擊了輪播圖', null, null)}>
-                  <Text style={[
-                    styles.advertisementContent,
-                    {backgroundColor: advertisement.backgroundColor}
-                  ]}>{advertisement.title}</Text>
+                  <Image style={styles.advertisementContent} source={advertisement.image}/>
                 </TouchableHighlight>
               );
             })}
           </ScrollView>
+          <View style={[styles.indicator, {left}]}>
+            {this.state.advertisements.map((advertisement, index) => {
+              return (<View key={index}
+                            style={(index === this.state.currentPage)
+                              ? styles.circleSelected
+                              : styles.circle}></View>)
+            })}
+          </View>
         </View>
         <View style={styles.products}>
           <ListView dataSource={this.state.dataSource} renderRow={this._renderRow}/>
@@ -136,7 +147,8 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     borderColor: 'gray',
-    borderWidth: 2
+    borderWidth: 2,
+    borderRadius: 10
   },
   button: {
     flex: 1
@@ -147,6 +159,25 @@ const styles = StyleSheet.create({
   advertisementContent: {
     width: Dimensions.get('window').width,
     height: 180
+  },
+  indicator: {
+    position: 'absolute',
+    top: 160,
+    flexDirection: 'row'
+  },
+  circle: {
+    width: circleSize,
+    height: circleSize,
+    borderRadius: circleSize/2,
+    backgroundColor: 'gray',
+    marginHorizontal: circleMargin
+  },
+  circleSelected: {
+    width: circleSize,
+    height: circleSize,
+    borderRadius: circleSize/2,
+    backgroundColor: 'white',
+    marginHorizontal: circleMargin
   },
   products: {
     flex: 1,
