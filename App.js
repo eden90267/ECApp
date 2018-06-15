@@ -30,16 +30,61 @@ export default class App extends Component<{}> {
     this.state = {
       currentPage: 0,
       dataSource: ds.cloneWithRows([ // 為數據源傳遞一個數組
-        '商品 1',
-        '商品 2',
-        '商品 3',
-        '商品 4',
-        '商品 5',
-        '商品 6',
-        '商品 7',
-        '商品 8',
-        '商品 9',
-        '商品 10',
+        {
+          image: require('./images/advertisement-image-01.jpg'),
+          title: '商品 1',
+          subTitle: '描述 1'
+        },
+        {
+          image: require('./images/advertisement-image-01.jpg'),
+          title: '商品 2',
+          subTitle: '描述 2'
+        },
+        {
+          image: require('./images/advertisement-image-01.jpg'),
+          title: '商品 3',
+          subTitle: '描述 3'
+        },
+        {
+          image: require('./images/advertisement-image-01.jpg'),
+          title: '商品 3',
+          subTitle: '描述 3'
+        },
+        {
+          image: require('./images/advertisement-image-01.jpg'),
+          title: '商品 4',
+          subTitle: '描述 4'
+        },
+        {
+          image: require('./images/advertisement-image-01.jpg'),
+          title: '商品 5',
+          subTitle: '描述 5'
+        },
+        {
+          image: require('./images/advertisement-image-01.jpg'),
+          title: '商品 6',
+          subTitle: '描述 6'
+        },
+        {
+          image: require('./images/advertisement-image-01.jpg'),
+          title: '商品 7',
+          subTitle: '描述 7'
+        },
+        {
+          image: require('./images/advertisement-image-01.jpg'),
+          title: '商品 8',
+          subTitle: '描述 8'
+        },
+        {
+          image: require('./images/advertisement-image-01.jpg'),
+          title: '商品 9',
+          subTitle: '描述 9'
+        },
+        {
+          image: require('./images/advertisement-image-01.jpg'),
+          title: '商品 10',
+          subTitle: '描述 10'
+        }
       ]),
       advertisements: [ // 輪播廣告陣列
         {
@@ -96,7 +141,9 @@ export default class App extends Component<{}> {
           </View>
         </View>
         <View style={styles.products}>
-          <ListView dataSource={this.state.dataSource} renderRow={this._renderRow}/>
+          <ListView dataSource={this.state.dataSource}
+                    renderRow={this._renderRow}
+                    renderSeparator={this._renderSeparator}/>
         </View>
       </View>
     );
@@ -106,9 +153,19 @@ export default class App extends Component<{}> {
     return (
       <TouchableHighlight onPress={() => Alert.alert('你單擊了商品列表', null, null)}>
         <View style={styles.row}>
-          <Text>{rowData}</Text>
+          <Image source={rowData.image} style={styles.productImage}/>
+          <View style={styles.productText}>{/* flexDirection 默認為 "column" */}
+            <Text style={styles.productTitle}>{rowData.title}</Text>
+            <Text style={styles.productSubTitle}>{rowData.subTitle}</Text>
+          </View>
         </View>
       </TouchableHighlight>
+    )
+  };
+
+  _renderSeparator(sectionID, rowID, adjacentRowHighlighted) {
+    return (
+      <View key={`${sectionID}-${rowID}`} style={styles.divider}/>
     )
   }
 
@@ -168,14 +225,14 @@ const styles = StyleSheet.create({
   circle: {
     width: circleSize,
     height: circleSize,
-    borderRadius: circleSize/2,
+    borderRadius: circleSize / 2,
     backgroundColor: 'gray',
     marginHorizontal: circleMargin
   },
   circleSelected: {
     width: circleSize,
     height: circleSize,
-    borderRadius: circleSize/2,
+    borderRadius: circleSize / 2,
     backgroundColor: 'white',
     marginHorizontal: circleMargin
   },
@@ -184,7 +241,34 @@ const styles = StyleSheet.create({
   },
   row: {
     height: 60,
-    justifyContent: 'center',
-    alignItems: 'center'
+    flexDirection: 'row',
+    backgroundColor: 'white'
+  },
+  productImage: {
+    width: 40,
+    height: 40,
+    marginLeft: 10,
+    marginRight: 10,
+    alignSelf: 'center'
+  },
+  productText: {
+    flex: 1,
+    marginTop: 10,
+    marginBottom: 10
+  },
+  productTitle: {
+    flex: 3,
+    fontSize: 16
+  },
+  productSubTitle: {
+    flex: 2,
+    fontSize: 14,
+    color: 'gray'
+  },
+  divider: {
+    height: 1,
+    width: Dimensions.get('window').width - 5,
+    marginLeft: 5,
+    backgroundColor: 'lightgray'
   }
 });
