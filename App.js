@@ -13,7 +13,7 @@ import {
   View,
   Dimensions,
   ListView,
-  Alert, TouchableHighlight, StatusBar, Image
+  Alert, TouchableHighlight, StatusBar, Image, RefreshControl
 } from 'react-native';
 
 const ds = new ListView.DataSource({ // 創建 ListView.DataSource 數據源
@@ -98,6 +98,7 @@ export default class App extends Component<{}> {
         }
       ],
       searchText: '',
+      isRefreshing: false
     };
   }
 
@@ -143,7 +144,8 @@ export default class App extends Component<{}> {
         <View style={styles.products}>
           <ListView dataSource={this.state.dataSource}
                     renderRow={this._renderRow}
-                    renderSeparator={this._renderSeparator}/>
+                    renderSeparator={this._renderSeparator}
+                    refreshControl={this._renderRefreshControl()}/>
         </View>
       </View>
     );
@@ -168,6 +170,31 @@ export default class App extends Component<{}> {
       <View key={`${sectionID}-${rowID}`} style={styles.divider}/>
     )
   }
+
+  _renderRefreshControl() {
+    return (
+      <RefreshControl
+        refreshing={this.state.isRefreshing}
+        onRefresh={this._onRefresh}
+        tintColor={'#FF0000'}
+        title={'正在刷新數據，請稍候...'}
+        titleColor={'#0000FF'}>
+      </RefreshControl>
+    )
+  }
+
+  _onRefresh = () => {
+    this.setState({isRefreshing: true});
+
+    setTimeout(() => {
+      const products = Array.from(new Array(10)).map((value, index) => ({
+        image: require('./images/advertisement-image-01.jpg'),
+        title: '新商品' + index,
+        subTitle: '新商品描述' + index
+      }));
+      this.setState({isRefreshing: false, dataSource: ds.cloneWithRows(products)});
+    }, 2000);
+  };
 
   componentDidMount() {
     this._startTimer();
