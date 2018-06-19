@@ -15,6 +15,7 @@ import {
   ListView,
   Alert, TouchableHighlight, StatusBar, Image, RefreshControl
 } from 'react-native';
+import Detail from "./Detail";
 
 const ds = new ListView.DataSource({ // 創建 ListView.DataSource 數據源
   rowHasChanged: (r1, r2) => r1 !== r2
@@ -153,7 +154,17 @@ export default class Home extends Component<{}> {
 
   _renderRow = (rowData, sectionID, rowID) => {
     return (
-      <TouchableHighlight onPress={() => Alert.alert('你單擊了商品列表', null, null)}>
+      <TouchableHighlight onPress={() => {
+        const {navigator} = this.props;
+        if (navigator) {
+          navigator.push({
+            name: 'detail',
+            component: Detail,
+            params: {
+              productTitle: rowData.title
+            }})
+        }
+      }}>
         <View style={styles.row}>
           <Image source={rowData.image} style={styles.productImage}/>
           <View style={styles.productText}>{/* flexDirection 默認為 "column" */}
