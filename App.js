@@ -9,7 +9,7 @@ import {
   View
 } from 'react-native';
 import {Navigator} from 'react-native-deprecated-custom-components';
-import Home from "./Home";
+import MainIos from "./Main";
 
 export default class App extends Component<{}> {
 
@@ -17,8 +17,8 @@ export default class App extends Component<{}> {
     return (
       <Navigator
         initialRoute={{
-          name: 'home',
-          component: Home
+          name: 'main',
+          component: MainIos
         }}
         configureScene={(route) => {
           return Navigator.SceneConfigs.FloatFromRight;
