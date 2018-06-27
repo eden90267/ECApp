@@ -15,6 +15,7 @@ import {
   ListView,
   Alert, TouchableHighlight, StatusBar, Image, RefreshControl
 } from 'react-native';
+import Swiper from 'react-native-swiper'
 import Detail from "./Detail";
 
 const ds = new ListView.DataSource({ // 創建 ListView.DataSource 數據源
@@ -121,26 +122,15 @@ export default class Home extends Component<{}> {
                   onPress={() => Alert.alert('搜索內容 ' + this.state.searchText, null, null)}/>
         </View>
         <View style={styles.advertisement}>
-          <ScrollView ref="scrollView"
-                      horizontal={true}
-                      showsHorizontalScrollIndicator={false}
-                      pagingEnabled={true}>
+          <Swiper loop={true} height={190} autoplay={true}>
             {this.state.advertisements.map((advertisement, index) => {
               return (
                 <TouchableHighlight key={index} onPress={() => Alert.alert('你單擊了輪播圖', null, null)}>
                   <Image style={styles.advertisementContent} source={advertisement.image}/>
                 </TouchableHighlight>
-              );
+              )
             })}
-          </ScrollView>
-          <View style={[styles.indicator, {left}]}>
-            {this.state.advertisements.map((advertisement, index) => {
-              return (<View key={index}
-                            style={(index === this.state.currentPage)
-                              ? styles.circleSelected
-                              : styles.circle}></View>)
-            })}
-          </View>
+          </Swiper>
         </View>
         <View style={styles.products}>
           <ListView dataSource={this.state.dataSource}
@@ -207,25 +197,6 @@ export default class Home extends Component<{}> {
     }, 2000);
   };
 
-  componentDidMount() {
-    this._startTimer();
-  }
-
-  componentWillUnmount() {
-    clearInterval(this.interval);
-  }
-
-  _startTimer() {
-    this.interval = setInterval(() => {
-      let nextPage = this.state.currentPage + 1;
-      if (nextPage >= 3) {
-        nextPage = 0;
-      }
-      this.setState({currentPage: nextPage});
-      const offsetX = nextPage * Dimensions.get('window').width; // 計算 ScrollView 滾動的 X 軸偏移量 (因為是橫向滾動)
-      this.refs.scrollView.scrollResponderScrollTo({x: offsetX, y: 0, animated: true});
-    }, 2000);
-  }
 }
 
 const styles = StyleSheet.create({
