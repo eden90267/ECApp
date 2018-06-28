@@ -6,17 +6,17 @@
 
 import React, {Component} from 'react';
 import {
-  Button,
-  Platform, ScrollView,
+  Platform,
   StyleSheet,
-  Text, TextInput,
+  Text,
   View,
   Dimensions,
   ListView,
-  Alert, TouchableHighlight, StatusBar, Image, RefreshControl
+  Alert, TouchableHighlight, Image, RefreshControl
 } from 'react-native';
 import Swiper from 'react-native-swiper'
 import Detail from "./Detail";
+import {Container, Content, Header, Icon, Input, InputGroup, Button} from "native-base";
 
 const ds = new ListView.DataSource({ // 創建 ListView.DataSource 數據源
   rowHasChanged: (r1, r2) => r1 !== r2
@@ -105,40 +105,44 @@ export default class Home extends Component<{}> {
   }
 
   render() {
-    const advertisementCount = this.state.advertisements.length;
-    const indicatorWidth = circleSize * advertisementCount + circleMargin * advertisementCount * 2;
-    const left = (Dimensions.get('window').width - indicatorWidth) / 2;
-
     return (
-      <View style={styles.container}>
-        <StatusBar backgroundColor={'blue'} barStyle={'default'} networkActivityIndicatorVisible={true}>
-        </StatusBar>
-        <View style={styles.searchbar}>
-          <TextInput style={styles.input} placeholder="搜索商品" onChangeText={(text) => {
-            this.setState({searchText: text});
-            console.log('輸入的內容是 ' + this.state.searchText);
-          }}/>
-          <Button style={styles.button} title="搜索"
-                  onPress={() => Alert.alert('搜索內容 ' + this.state.searchText, null, null)}/>
-        </View>
-        <View style={styles.advertisement}>
-          <Swiper loop={true} height={190} autoplay={true}>
-            {this.state.advertisements.map((advertisement, index) => {
-              return (
-                <TouchableHighlight key={index} onPress={() => Alert.alert('你單擊了輪播圖', null, null)}>
-                  <Image style={styles.advertisementContent} source={advertisement.image}/>
-                </TouchableHighlight>
-              )
-            })}
-          </Swiper>
-        </View>
-        <View style={styles.products}>
-          <ListView dataSource={this.state.dataSource}
-                    renderRow={this._renderRow}
-                    renderSeparator={this._renderSeparator}
-                    refreshControl={this._renderRefreshControl()}/>
-        </View>
-      </View>
+      <Container>
+        <Header searchBar rounded>
+          <InputGroup>
+            <Icon name="ios-search-outline"/>
+            <Input
+              placeholder="搜索商品"
+              onChangeText={(text) => {
+                this.setState({searchText: text});
+                console.log('輸入的內容是 ' + this.state.searchText);
+              }}/>
+          </InputGroup>
+          <Button transparent>
+            <Icon name='ios-search' onPress={() => {
+              Alert.alert('搜索內容' + this.state.searchText, null, null);
+            }}/>
+          </Button>
+        </Header>
+        <Content>
+          <View style={styles.advertisement}>
+            <Swiper loop={true} height={190} autoplay={true}>
+              {this.state.advertisements.map((advertisement, index) => {
+                return (
+                  <TouchableHighlight key={index} onPress={() => Alert.alert('你單擊了輪播圖', null, null)}>
+                    <Image style={styles.advertisementContent} source={advertisement.image}/>
+                  </TouchableHighlight>
+                )
+              })}
+            </Swiper>
+          </View>
+          <View style={styles.products}>
+            <ListView dataSource={this.state.dataSource}
+                      renderRow={this._renderRow}
+                      renderSeparator={this._renderSeparator}
+                      refreshControl={this._renderRefreshControl()}/>
+          </View>
+        </Content>
+      </Container>
     );
   }
 
@@ -152,7 +156,8 @@ export default class Home extends Component<{}> {
             component: Detail,
             params: {
               productTitle: rowData.title
-            }})
+            }
+          })
         }
       }}>
         <View style={styles.row}>
@@ -200,9 +205,6 @@ export default class Home extends Component<{}> {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1
-  },
   searchbar: {
     marginTop: Platform.OS === 'ios'
       ? 20
