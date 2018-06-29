@@ -8,22 +8,27 @@ import React, {Component} from 'react';
 import {
   Platform,
   StyleSheet,
-  Text,
   View,
   Dimensions,
   ListView,
-  Alert, TouchableHighlight, Image, RefreshControl
+  Alert, Image, RefreshControl, TouchableHighlight
 } from 'react-native';
 import Swiper from 'react-native-swiper'
 import Detail from "./Detail";
-import {Container, Content, Header, Icon, Input, InputGroup, Button} from "native-base";
-
-const ds = new ListView.DataSource({ // 創建 ListView.DataSource 數據源
-  rowHasChanged: (r1, r2) => r1 !== r2
-});
-
-const circleSize = 8;
-const circleMargin = 5;
+import {
+  Container,
+  Content,
+  Header,
+  Icon,
+  Input,
+  Button,
+  Item,
+  List,
+  ListItem,
+  Thumbnail,
+  Text,
+  Left, Body
+} from "native-base";
 
 export default class Home extends Component<{}> {
 
@@ -31,7 +36,7 @@ export default class Home extends Component<{}> {
     super(props);
     this.state = {
       currentPage: 0,
-      dataSource: ds.cloneWithRows([ // 為數據源傳遞一個數組
+      products: [
         {
           image: require('./images/advertisement-image-01.jpg'),
           title: '商品 1',
@@ -87,7 +92,8 @@ export default class Home extends Component<{}> {
           title: '商品 10',
           subTitle: '描述 10'
         }
-      ]),
+      ],
+      showSwiper: false,
       advertisements: [ // 輪播廣告陣列
         {
           image: require('./images/advertisement-image-01.jpg')
@@ -108,7 +114,7 @@ export default class Home extends Component<{}> {
     return (
       <Container>
         <Header searchBar rounded>
-          <InputGroup>
+          <Item>
             <Icon name="ios-search-outline"/>
             <Input
               placeholder="搜索商品"
@@ -116,170 +122,77 @@ export default class Home extends Component<{}> {
                 this.setState({searchText: text});
                 console.log('輸入的內容是 ' + this.state.searchText);
               }}/>
-          </InputGroup>
-          <Button transparent>
-            <Icon name='ios-search' onPress={() => {
-              Alert.alert('搜索內容' + this.state.searchText, null, null);
-            }}/>
+          </Item>
+          <Button transparent onPress={() => {
+            Alert.alert('搜索內容' + this.state.searchText, null, null);
+          }}>
+            <Text>搜索</Text>
           </Button>
         </Header>
         <Content>
           <View style={styles.advertisement}>
-            <Swiper loop={true} height={190} autoplay={true}>
-              {this.state.advertisements.map((advertisement, index) => {
-                return (
-                  <TouchableHighlight key={index} onPress={() => Alert.alert('你單擊了輪播圖', null, null)}>
-                    <Image style={styles.advertisementContent} source={advertisement.image}/>
-                  </TouchableHighlight>
-                )
-              })}
-            </Swiper>
+            {
+              this.state.showSwiper ?
+                <Swiper loop={true} height={190} autoplay={true}>
+                  {this.state.advertisements.map((advertisement, index) => {
+                    return (
+                      <TouchableHighlight key={index} onPress={() => Alert.alert('你單擊了輪播圖', null, null)}>
+                        <Image style={styles.advertisementContent} source={advertisement.image}/>
+                      </TouchableHighlight>
+                    )
+                  })}
+                </Swiper> :
+                null
+            }
           </View>
-          <View style={styles.products}>
-            <ListView dataSource={this.state.dataSource}
-                      renderRow={this._renderRow}
-                      renderSeparator={this._renderSeparator}
-                      refreshControl={this._renderRefreshControl()}/>
-          </View>
+          <List dataArray={this.state.products} renderRow={this._renderRow}>
+          </List>
         </Content>
       </Container>
     );
   }
 
-  _renderRow = (rowData, sectionID, rowID) => {
+  _renderRow = (product) => {
     return (
-      <TouchableHighlight onPress={() => {
-        const {navigator} = this.props;
-        if (navigator) {
-          navigator.push({
-            name: 'detail',
-            component: Detail,
-            params: {
-              productTitle: rowData.title
-            }
-          })
-        }
-      }}>
-        <View style={styles.row}>
-          <Image source={rowData.image} style={styles.productImage}/>
-          <View style={styles.productText}>{/* flexDirection 默認為 "column" */}
-            <Text style={styles.productTitle}>{rowData.title}</Text>
-            <Text style={styles.productSubTitle}>{rowData.subTitle}</Text>
-          </View>
-        </View>
-      </TouchableHighlight>
+      <ListItem
+        button
+        onPress={() => {
+          const {navigator} = this.props;
+          if (navigator) {
+            navigator.push({
+              name: 'detail',
+              component: Detail,
+              params: {
+                productTitle: product.title
+              }
+            })
+          }
+        }}
+        avatar
+      >
+        <Left>
+          <Thumbnail square size={40} source={product.image}/>
+        </Left>
+        <Body>
+        <Text>{product.title}</Text>
+        <Text note>{product.subTitle}</Text>
+        </Body>
+      </ListItem>
     )
   };
 
-  _renderSeparator(sectionID, rowID, adjacentRowHighlighted) {
-    return (
-      <View key={`${sectionID}-${rowID}`} style={styles.divider}/>
-    )
+  componentDidMount() {
+    setTimeout(() =>
+        this.setState({showSwiper: true}),
+      0
+    );
   }
-
-  _renderRefreshControl() {
-    return (
-      <RefreshControl
-        refreshing={this.state.isRefreshing}
-        onRefresh={this._onRefresh}
-        tintColor={'#FF0000'}
-        title={'正在刷新數據，請稍候...'}
-        titleColor={'#0000FF'}>
-      </RefreshControl>
-    )
-  }
-
-  _onRefresh = () => {
-    this.setState({isRefreshing: true});
-
-    setTimeout(() => {
-      const products = Array.from(new Array(10)).map((value, index) => ({
-        image: require('./images/advertisement-image-01.jpg'),
-        title: '新商品' + index,
-        subTitle: '新商品描述' + index
-      }));
-      this.setState({isRefreshing: false, dataSource: ds.cloneWithRows(products)});
-    }, 2000);
-  };
 
 }
 
 const styles = StyleSheet.create({
-  searchbar: {
-    marginTop: Platform.OS === 'ios'
-      ? 20
-      : 0,
-    height: 40,
-    flexDirection: 'row'
-  },
-  input: {
-    flex: 1,
-    borderColor: 'gray',
-    borderWidth: 2,
-    borderRadius: 10
-  },
-  button: {
-    flex: 1
-  },
-  advertisement: {
-    height: 180
-  },
   advertisementContent: {
     width: Dimensions.get('window').width,
     height: 180
-  },
-  indicator: {
-    position: 'absolute',
-    top: 160,
-    flexDirection: 'row'
-  },
-  circle: {
-    width: circleSize,
-    height: circleSize,
-    borderRadius: circleSize / 2,
-    backgroundColor: 'gray',
-    marginHorizontal: circleMargin
-  },
-  circleSelected: {
-    width: circleSize,
-    height: circleSize,
-    borderRadius: circleSize / 2,
-    backgroundColor: 'white',
-    marginHorizontal: circleMargin
-  },
-  products: {
-    flex: 1,
-  },
-  row: {
-    height: 60,
-    flexDirection: 'row',
-    backgroundColor: 'white'
-  },
-  productImage: {
-    width: 40,
-    height: 40,
-    marginLeft: 10,
-    marginRight: 10,
-    alignSelf: 'center'
-  },
-  productText: {
-    flex: 1,
-    marginTop: 10,
-    marginBottom: 10
-  },
-  productTitle: {
-    flex: 3,
-    fontSize: 16
-  },
-  productSubTitle: {
-    flex: 2,
-    fontSize: 14,
-    color: 'gray'
-  },
-  divider: {
-    height: 1,
-    width: Dimensions.get('window').width - 5,
-    marginLeft: 5,
-    backgroundColor: 'lightgray'
   }
 });
